@@ -205,7 +205,6 @@ Expected result:
 Now curl the request to `api2.example.com` and observe that it still behaves as normal.
 
 ```shell
-```shell
 curl -v http://api2.example.com:8080/get -H "allow: true"
 ```
 
