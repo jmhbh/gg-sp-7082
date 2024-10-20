@@ -105,6 +105,8 @@ Rejected%
 
 ### Request 3
 
+Lets make a request to the `api2.example.com` endpoint which is in the `httpbin` namespace.
+
 ```shell
 curl  http://api2.example.com:8080/get -H "allow: true"
 ```
@@ -168,7 +170,7 @@ Check the settings to confirm that the `ingress-gw` namespace has been removed f
 kubectl get settings.gloo.solo.io -A -oyaml
 ```
 
-Make the same requests again, notice that both requests will result in the same 403 response as the ext-auth-service fails to find the authConfig since we are no longer translating resources in the `ingress-gw` namespace as expected.
+Make the same requests to the route applied to the `ingress-gw` namespace, notice that both requests will result in the same 403 response as the ext-auth-service fails to find the authConfig since we are no longer translating resources in the `ingress-gw` namespace as expected.
 
 ```shell
 curl -v http://api.example.com:8080/get -H "allow: true"
@@ -204,7 +206,7 @@ Now curl the request to `api2.example.com` and observe that it still behaves as 
 
 ```shell
 ```shell
-curl -v http://api.example.com:8080/get -H "allow: true"
+curl -v http://api2.example.com:8080/get -H "allow: true"
 ```
 
 Expected result:
@@ -240,7 +242,7 @@ Expected result:
 ```
 
 ```shell
-curl -v http://api.example.com:8080/get
+curl -v http://api2.example.com:8080/get
 ```
 
 Expected result:
