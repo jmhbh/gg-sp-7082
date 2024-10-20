@@ -12,6 +12,11 @@ Export your Gloo Gateway License Key to an environment variable:
 export GLOO_GATEWAY_LICENSE_KEY={your license key}
 ```
 
+Create kind cluster
+```shell
+kind create cluster --name solo-test-cluster
+```
+
 Install Gloo Gateway:
 ```
 cd install
