@@ -51,11 +51,12 @@ gloo:
     # Expose the Control Plane Admin API (port 10010 on Gloo)
     devMode: true
 
-    # Deliberately not adding "ingress-gw" namespace to trigger bug.
+    # Include ingress-gw in watchNamespaces to observe downstream effect of removing the namespace's downstream effect after
+    # config has been applied
     watchNamespaces:
     - gloo-system
     - httpbin
-    # - ingress-gw
+    - ingress-gw
 
     # Configure some standard descriptors to be used by the rate-limit portion of our tests
     # This rule states: "if a request has a descriptor with key=generic_key, value=2, apply 1 requests/second rate limit"

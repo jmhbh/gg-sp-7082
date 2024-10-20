@@ -1,0 +1,52 @@
+apiVersion: gateway.solo.io/v1
+kind: RouteOption
+metadata:
+  name: auth-policy
+  namespace: ingress-gw
+spec:
+  options:
+    extauth:
+      configRef:
+        name: custom-auth
+        namespace: ingress-gw
+---
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: custom-auth
+  namespace: ingress-gw
+spec:
+  configs:
+    - opaAuth:
+        modules:
+          - name: custom-opa-policy
+            namespace: ingress-gw
+        query: "data.test.result"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-opa-policy
+  namespace: ingress-gw
+data:
+  policy.rego: |-
+    package test
+
+    import future.keywords.if
+
+    default allow = false
+
+    allow if {
+      input.http_request.headers["allow"] == "true"
+    }
+
+    http_status := 200 if {
+      allow
+    }
+    
+    http_status := 403 if {
+      not allow
+    }
+
+    result["allow"] := allow
+    result["http_status"] := http_status

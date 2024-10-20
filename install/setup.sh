@@ -28,10 +28,10 @@ kubectl apply -f referencegrants/httpbin-ns/ingress-gw-ns-httproute-service-rg.y
 
 # Deploy RouteOptions
 printg "\nDeploy RouteOptions ...\n"
-kubectl apply -f policies/cors-routeoption.yaml
+kubectl apply -f policies/routeoption.yaml
 
-# # HTTPRoute
-# printf "\nDeploy HTTPRoute ...\n"
-# kubectl apply -f routes/api-example-com-httproute.yaml
+# HTTPRoute
+printf "\nDeploy HTTPRoute ...\n"
+kubectl apply -f routes/api-example-com-httproute.yaml
 
 popd

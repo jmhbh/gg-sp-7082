@@ -23,7 +23,7 @@ spec:
         extensionRef:
           group: gateway.solo.io
           kind: RouteOption
-          name: cors
+          name: auth-policy
       backendRefs:
       - name: httpbin
         namespace: httpbin
