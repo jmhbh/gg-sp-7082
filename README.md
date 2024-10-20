@@ -103,6 +103,55 @@ Expected result:
 Rejected%
 ```
 
+### Request 3
+
+```shell
+curl  http://api2.example.com:8080/get -H "allow: true"
+```
+
+Expected result:
+```
+{
+  "args": {},
+  "headers": {
+    "Accept": [
+      "*/*"
+    ],
+    "Allow": [
+      "true"
+    ],
+    "Host": [
+      "api.example.com:8080"
+    ],
+    "User-Agent": [
+      "curl/8.8.0"
+    ],
+    "X-Envoy-Expected-Rq-Timeout-Ms": [
+      "15000"
+    ],
+    "X-Forwarded-Proto": [
+      "http"
+    ],
+    "X-Request-Id": [
+      "7f1c0287-84fc-42b5-9bda-82f7feb69d99"
+    ]
+  },
+  "origin": "10.244.0.13:46524",
+  "url": "http://api.example.com:8080/get"
+}
+```
+
+### Request 4
+
+```shell
+curl  http://api2.example.com:8080/get
+```
+
+Expected result:
+```
+Rejected%
+```
+
 ### Observe downstream effect of control plane crash
 
 Now let us observe the downstream effect of the segfault bug by removing `ingress-gw` from the watchNamespace list to see if the data plane is affected.
@@ -119,7 +168,7 @@ Check the settings to confirm that the `ingress-gw` namespace has been removed f
 kubectl get settings.gloo.solo.io -A -oyaml
 ```
 
-Make the same requests again, notice that both requests will result in the same response as the ext-auth-service fails to find the authConfig due to translation not completing as a result of the control plane crash.
+Make the same requests again, notice that both requests will result in the same 403 response as the ext-auth-service fails to find the authConfig since we are no longer translating resources in the `ingress-gw` namespace as expected.
 
 ```shell
 curl -v http://api.example.com:8080/get -H "allow: true"
@@ -151,46 +200,50 @@ Expected result:
 * Connection #0 to host api.example.com left intact
 ```
 
-Check the ext-auth-server logs and see that the ext-auth-service is unable to find the updated auth configuration 
-```json
-{
-  "level": "error",
-  "ts": "2024-10-20T20:10:48Z",
-  "logger": "ext-auth.ext-auth-service",
-  "msg": "Auth Server does not contain auth configuration with the given ID",
-  "version": "undefined",
-  "x-request-id": "ae15cd6a-7aff-402f-a1e5-351b74cec68d",
-  "RequestContext": {
-    "AuthConfigId": "ingress-gw.custom-auth",
-    "SourceType": "route",
-    "SourceName": ""
-  },
-  "stacktrace": [
-    "github.com/solo-io/ext-auth-service/pkg/service.(*authServer).Check",
-    "\t/go/pkg/mod/github.com/solo-io/ext-auth-service@v0.58.0-patch2/pkg/service/extauth.go:150",
-    "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3._Authorization_Check_Handler.func1",
-    "\t/go/pkg/mod/github.com/envoyproxy/go-control-plane@v0.12.1-0.20240326194405-485b2263e153/envoy/service/auth/v3/external_auth.pb.go:700",
-    "github.com/solo-io/ext-auth-service/pkg/server.Server.Run.GrpcUnaryServerHealthCheckerInterceptor.func9",
-    "\t/go/pkg/mod/github.com/solo-io/go-utils@v0.25.3/healthchecker/grpc.go:69",
-    "google.golang.org/grpc.getChainUnaryHandler.func1",
-    "\t/go/pkg/mod/google.golang.org/grpc@v1.62.2/server.go:1203",
-    "github.com/solo-io/ext-auth-service/pkg/server.Server.Run.requestIdInterceptor.func7",
-    "\t/go/pkg/mod/github.com/solo-io/ext-auth-service@v0.58.0-patch2/pkg/server/logging.go:86",
-    "google.golang.org/grpc.getChainUnaryHandler.func1",
-    "\t/go/pkg/mod/google.golang.org/grpc@v1.62.2/server.go:1203",
-    "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap.UnaryServerInterceptor.func1",
-    "\t/go/pkg/mod/github.com/grpc-ecosystem/go-grpc-middleware@v1.4.0/logging/zap/server_interceptors.go:31",
-    "google.golang.org/grpc.NewServer.chainUnaryServerInterceptors.chainUnaryInterceptors.func1",
-    "\t/go/pkg/mod/google.golang.org/grpc@v1.62.2/server.go:1194",
-    "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3._Authorization_Check_Handler",
-    "\t/go/pkg/mod/github.com/envoyproxy/go-control-plane@v0.12.1-0.20240326194405-485b2263e153/envoy/service/auth/v3/external_auth.pb.go:702",
-    "google.golang.org/grpc.(*Server).processUnaryRPC",
-    "\t/go/pkg/mod/google.golang.org/grpc@v1.62.2/server.go:1386",
-    "google.golang.org/grpc.(*Server).handleStream",
-    "\t/go/pkg/mod/google.golang.org/grpc@v1.62.2/server.go:1797",
-    "google.golang.org/grpc.(*Server).serveStreams.func2.1",
-    "\t/go/pkg/mod/google.golang.org/grpc@v1.62.2/server.go:1027"
-  ]
-}
+Now curl the request to `api2.example.com` and observe that it still behaves as normal.
 
+```shell
+```shell
+curl -v http://api.example.com:8080/get -H "allow: true"
+```
+
+Expected result:
+```
+{
+  "args": {},
+  "headers": {
+    "Accept": [
+      "*/*"
+    ],
+    "Allow": [
+      "true"
+    ],
+    "Host": [
+      "api.example.com:8080"
+    ],
+    "User-Agent": [
+      "curl/8.8.0"
+    ],
+    "X-Envoy-Expected-Rq-Timeout-Ms": [
+      "15000"
+    ],
+    "X-Forwarded-Proto": [
+      "http"
+    ],
+    "X-Request-Id": [
+      "7f1c0287-84fc-42b5-9bda-82f7feb69d99"
+    ]
+  },
+  "origin": "10.244.0.13:46524",
+  "url": "http://api.example.com:8080/get"
+}
+```
+
+```shell
+curl -v http://api.example.com:8080/get
+```
+
+Expected result:
+```
+Rejected%
 ```

@@ -11,8 +11,8 @@ spec:
       name: http
       allowedRoutes:
         namespaces:
-          from: Same
-          # from: All
+          # from: Same
+          from: All
           # from: Selector # Only allow routes from namespaces with the following label set.
           # selector:
           #   matchLabels:
