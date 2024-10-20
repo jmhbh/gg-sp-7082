@@ -156,7 +156,7 @@ Rejected%
 
 ### Observe downstream effect of control plane crash
 
-Now let us observe the downstream effect of the segfault bug by removing `ingress-gw` from the watchNamespace list to see if the data plane is affected.
+Now let us observe the downstream effect of the segfault bug by removing `ingress-gw` from the watchNamespace list to see how the data plane is affected.
 
 ```shell
 kubectl patch settings default \
